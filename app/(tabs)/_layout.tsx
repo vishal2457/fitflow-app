@@ -2,10 +2,11 @@ import { DarkTheme } from "@react-navigation/native";
 import { Redirect, SplashScreen, Tabs } from "expo-router";
 import { House, LineChart, User } from "lucide-react-native";
 import React, { useCallback, useEffect } from "react";
+import { useAuth } from "../../source/store/auth.store";
 
 export default function TabLayout() {
-  // const status = useAuth.use.status();
-  // const user = useAuth.use.user();
+  const status = useAuth.use.status();
+  const user = useAuth.use.user();
   // const hideSplash = useCallback(async () => {
   //   await SplashScreen.hideAsync();
   // }, []);
@@ -18,9 +19,9 @@ export default function TabLayout() {
   //   }
   // }, [hideSplash, status]);
 
-  // if (status === "signOut") {
-  //   return <Redirect href="/login" />;
-  // }
+  if (status === "signOut") {
+    return <Redirect href="/login" />;
+  }
 
   // if (!user?.age || !user?.weight || !user?.height) {
   //   return <Redirect href="/profile-info" />;

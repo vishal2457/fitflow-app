@@ -1,13 +1,11 @@
 import "@/global.css";
 
 import { DOMRouterProvider } from "@/lib/router-with-dom";
-import { Header, SideNavigationBar } from "@/components/shad/shad-nav";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import React from "react";
 
-import { StyleNoSelect } from "../NoSelect";
 import { IS_DOM } from "expo/dom";
 import { ScrollView } from "react-native";
+import { StyleNoSelect } from "../NoSelect";
 
 export function ShadLayoutFull({
   navigate,
@@ -22,18 +20,7 @@ export function ShadLayoutFull({
     <>
       {!select && <StyleNoSelect />}
       <DOMRouterProvider value={{ navigate }}>
-        <TooltipProvider>
-          <div className="flex min-h-screen w-full flex-col bg-muted">
-            <SideNavigationBar />
-            {/* {!IS_DOM && <SideNavigationBar />} */}
-            <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
-              {/* TODO: Migrate to native. */}
-              {!IS_DOM && <Header />}
-
-              {children}
-            </div>
-          </div>
-        </TooltipProvider>
+        {children}
       </DOMRouterProvider>
     </>
   );

@@ -25,3 +25,5 @@ expo-env.d.ts
 .netlify
 
 .env.production
+
+build-*
