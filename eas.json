@@ -1,0 +1,26 @@
+{
+  "cli": {
+    "version": ">= 10.2.4",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {
+      "resourceClass": "large",
+      "autoIncrement": true,
+      "prebuildCommand": "npx expo prebuild --template ./vendor/expo-template-bare-minimum-51.0.27.tgz",
+      "android": {
+        "buildType": "apk"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

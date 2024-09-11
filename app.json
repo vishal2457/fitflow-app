@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "domcom",
+    "slug": "mdex",
+    "version": "1.0.0",
+    "orientation": "default",
+    "sdkVersion": "52.0.0",
+    "icon": "./assets/images/icon.png",
+    "scheme": "domcom",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#191A20"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.bacon.mdex",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.bacon.mdex"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "fdb71a5f-520e-478b-a01e-75b9b8032601"
+      }
+    }
+  }
+}
