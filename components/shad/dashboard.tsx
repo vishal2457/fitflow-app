@@ -15,11 +15,11 @@ import { Separator } from "@/components/ui/separator";
 import { CheckCheck } from "lucide-react-native";
 import { useState } from "react";
 import { ActivityIndicator } from "react-native";
-import { Bar, BarChart, LabelList, PolarAngleAxis, RadialBar, RadialBarChart, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, Label, LabelList, PolarAngleAxis, PolarGrid, PolarRadiusAxis, RadialBar, RadialBarChart, XAxis, YAxis } from "recharts";
 import { getTodaysWorkout } from "../../source/api/workout/get-todays-workout";
 import { getRandomQuote } from "../../source/utils/random-quotes";
 import { Button } from "../ui/button";
-import { ChartContainer } from "../ui/chart";
+import { ChartConfig, ChartContainer } from "../ui/chart";
 import { addWorkoutLog } from "../../source/api/workout/log-workout";
 import { useDelete } from "../../source/api/common/use-delete";
 
@@ -100,131 +100,114 @@ export default function DashboardRoute({ navigate }: Props) {
     );
   }
 
+
   return (
     <ShadLayout navigate={navigate}>
       <div className="p-3 pt-6">
         <p className="pl-3 text-lg  font-semibold font-mono">Hello, vishal</p>
         <p className="pl-3 pt-1 text-muted-foreground text-xs font-mono">{quote}</p>
         <div className="my-4 mt-6">
-          <Card className="md:max-w-xs" x-chunk="charts-01-chunk-4">
-            <CardContent className="flex gap-4 p-4 pb-2">
-              <ChartContainer
-                config={{
-                  calories: {
-                    label: "Calories",
-                    color: "hsl(var(--chart-1))",
-                  },
-                  // time: {
-                  //   label: "Time",
-                  //   color: "hsl(var(--chart-2))",
-                  // },
-                  exercise: {
-                    label: "Exercise",
-                    color: "hsl(var(--chart-3))",
-                  },
-                }}
-                className="h-[80px] w-full"
-              >
-                <BarChart
-                  margin={{
-                    left: 0,
-                    right: 0,
-                    top: 0,
-                    bottom: 10,
-                  }}
-                  data={[
-                    {
-                      activity: "Calories",
-                      value:
-                        (data?.todaysWorkout?.burntCalories /
-                          data?.todaysWorkout?.calorieBurn) *
-                        100,
-
-                      label: `${data?.todaysWorkout?.burntCalories}/${data?.todaysWorkout?.calorieBurn} kcal`,
-                      fill: "var(--color-calories)",
-                    },
-                    {
-                      activity: "Exercise",
-
-                      value:
-                        (data?.todaysWorkout?.completedExercise /
-                          data?.todaysWorkout?.totalWorkouts) *
-                        100,
-                      label: `${data?.todaysWorkout?.completedExercise}/${data?.todaysWorkout?.totalWorkouts}`,
-                      fill: "var(--color-exercise)",
-                    },
-                    // {
-                    //   activity: "Time",
-                    //   value: 100,
-                    //   label: `${data?.todaysWorkout?.totalMinutes} min to complete`,
-                    //   fill: "var(--color-time)",
-                    // },
-                  ]}
-                  layout="vertical"
-                  barSize={32}
-                  barGap={2}
-                >
-                  <XAxis type="number" dataKey="value" hide />
-                  <YAxis
-                    dataKey="activity"
-                    type="category"
-                    tickLine={false}
-                    tickMargin={4}
-                    axisLine={false}
-                    className="capitalize"
-                  />
-                  <Bar dataKey="value" radius={5}>
-                    <LabelList
-                      position="insideLeft"
-                      dataKey="label"
-                      fill="white"
-                      offset={8}
-                      fontSize={12}
-                    />
-                  </Bar>
-                </BarChart>
-              </ChartContainer>
-            </CardContent>
-
-            <CardFooter className="flex flex-row border-t p-4">
-              <div className="flex w-full items-center gap-2">
-                <div className="grid flex-1 auto-rows-min gap-0.5">
-                  <div className="text-sm text-muted-foreground">
-                    Calories burnt
-                  </div>
-                  <div className="flex items-baseline gap-1 text-2xl font-bold tabular-nums leading-none">
-                    {data?.todaysWorkout?.burntCalories}
-                    <span className="text-xs font-normal text-muted-foreground">
-                      kcal
-                    </span>
-                  </div>
+        <Card className="md:max-w-xs" x-chunk="charts-01-chunk-5">
+          <CardContent className="flex gap-4 p-4">
+            <div className="grid items-center gap-2">
+              <div className="grid flex-1 auto-rows-min gap-0.5">
+                <div className="text-sm text-muted-foreground">Calories Burnt</div>
+                <div className="flex items-baseline gap-1 text-xl font-bold tabular-nums leading-none">
+                  562/600
+                  <span className="text-sm font-normal text-muted-foreground">
+                    kcal
+                  </span>
                 </div>
-                <Separator orientation="vertical" className="mx-2 h-10 w-px" />
-                <div className="grid flex-1 auto-rows-min gap-0.5">
-                  <div className="text-xs text-muted-foreground">Exercise</div>
-                  <div className="flex items-baseline gap-1 text-2xl font-bold tabular-nums leading-none">
-                    {data?.todaysWorkout?.completedExercise}
-                    <span className="text-sm font-normal text-muted-foreground">
-                      done
-                    </span>
-                  </div>
-                </div>
-
-                {/* <Separator orientation="vertical" className="mx-2 h-10 w-px" />
-                <div className="grid flex-1 auto-rows-min gap-0.5">
-                  <div className="text-xs text-muted-foreground">
-                    Approx. Time
-                  </div>
-                  <div className="flex items-baseline gap-1 text-2xl font-bold tabular-nums leading-none">
-                  {data?.todaysWorkout?.totalMinutes}
-                    <span className="text-sm font-normal text-muted-foreground">
-                      min
-                    </span>
-                  </div>
-                </div> */}
               </div>
-            </CardFooter>
-          </Card>
+              <div className="grid flex-1 auto-rows-min gap-0.5">
+                <div className="text-sm text-muted-foreground">Exercise</div>
+                <div className="flex items-baseline gap-1 text-xl font-bold tabular-nums leading-none">
+                  73/120
+                  <span className="text-sm font-normal text-muted-foreground">
+                    min
+                  </span>
+                </div>
+              </div>
+            </div>
+            <ChartContainer
+              config={{
+                move: {
+                  label: "Move",
+                  color: "hsl(var(--chart-1))",
+                },
+                exercise: {
+                  label: "Exercise",
+                  color: "hsl(var(--chart-2))",
+                },
+              }}
+              className="mx-auto aspect-square w-full max-w-[80%]"
+            >
+              <RadialBarChart
+                margin={{
+                  left: -10,
+                  right: -10,
+                  top: -10,
+                  bottom: -10,
+                }}
+                data={[
+                
+                  {
+                    activity: "move",
+                    value: 95,
+                    fill: "var(--color-move)",
+                  },
+                ]}
+                innerRadius="90%"
+                outerRadius={55}
+                barSize={60}
+                startAngle={0}
+                endAngle={360}
+              >
+                
+                <PolarAngleAxis
+                  type="number"
+                  domain={[0, 100]}
+                  dataKey="value"
+                  tick={false}
+                  tickLine={false} axisLine={false}
+                />
+                
+                <RadialBar dataKey="value" background cornerRadius={5} />
+                <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
+              <Label
+                content={({ viewBox }) => {
+                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                    return (
+                      <text
+                        x={viewBox.cx}
+                        y={viewBox.cy}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                      >
+                        <tspan
+                          x={viewBox.cx}
+                          y={viewBox.cy}
+                          className="fill-foreground text-4xl font-bold"
+                        >
+                          65%
+                        </tspan>
+                        <tspan
+                          x={viewBox.cx}
+                          y={(viewBox.cy || 0) + 24}
+                          className="fill-muted-foreground"
+                        >
+                          completed
+                        </tspan>
+                      </text>
+                    )
+                  }
+                }}
+              />
+            </PolarRadiusAxis>
+              </RadialBarChart>
+            </ChartContainer>
+          </CardContent>
+        </Card>
         </div>
         <Card className="md:max-w-xs" x-chunk="charts-01-chunk-4">
           <CardHeader className="p-4">

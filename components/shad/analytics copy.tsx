@@ -1,12 +1,18 @@
 "use dom";
 
 import {
+  Area,
+  AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
   Label,
+  LabelList,
   Line,
   LineChart,
+  PolarAngleAxis,
+  RadialBar,
+  RadialBarChart,
   Rectangle,
   ReferenceLine,
   XAxis,
@@ -26,20 +32,9 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { Separator } from "@/components/ui/separator";
 
-import { Plus } from "lucide-react-native";
-import { Button } from "../ui/button";
 import ShadLayout from "./shad-layout";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "../ui/sheet";
-import { Input } from "../ui/input";
-import { Label as ShadLabel } from "../ui/label";
-import { useAuth } from "../../source/store/auth.store";
 
 export default function AnalyticsRoute({
   navigate,
@@ -56,20 +51,16 @@ export default function AnalyticsRoute({
 }
 
 function Charts() {
-  const user = useAuth.use.user();
   return (
     <div className="chart-wrapper mx-auto flex max-w-6xl flex-col flex-wrap items-start justify-center gap-6 p-6 sm:flex-row sm:p-8">
-      <div className="grid w-full gap-2 sm:grid-cols-2 lg:max-w-[22rem] lg:grid-cols-1 xl:max-w-[25rem]">
-        <p className="pl-2 text-xl font-semibold font-mono">
-          Calories last week
-        </p>
+      <div className="grid w-full gap-6 sm:grid-cols-2 lg:max-w-[22rem] lg:grid-cols-1 xl:max-w-[25rem]">
         <Card className="lg:max-w-md" x-chunk="charts-01-chunk-0">
           <CardHeader className="space-y-0 pb-2">
             <CardDescription>Today</CardDescription>
             <CardTitle className="text-4xl tabular-nums">
-              550{" "}
+              12,584{" "}
               <span className="font-sans text-sm font-normal tracking-normal text-muted-foreground">
-                kcal
+                steps
               </span>
             </CardTitle>
           </CardHeader>
@@ -161,13 +152,13 @@ function Charts() {
                 >
                   <Label
                     position="insideBottomLeft"
-                    value="Average Calories burnt"
+                    value="Average Steps"
                     offset={10}
                     fill="hsl(var(--foreground))"
                   />
                   <Label
                     position="insideTopLeft"
-                    value="660"
+                    value="12,343"
                     className="text-lg"
                     fill="hsl(var(--foreground))"
                     offset={10}
@@ -179,39 +170,33 @@ function Charts() {
           </CardContent>
           <CardFooter className="flex-col items-start gap-1">
             <CardDescription>
-              Over the past 7 days, you have burnt{" "}
-              <span className="font-medium text-foreground">3000</span>{" "}
-              calories.
+              Over the past 7 days, you have walked{" "}
+              <span className="font-medium text-foreground">53,305</span> steps.
             </CardDescription>
             <CardDescription>
-              You need <span className="font-medium text-foreground">100</span>{" "}
-              more calories to reach your goal this week.
+              You need{" "}
+              <span className="font-medium text-foreground">12,584</span> more
+              steps to reach your goal.
             </CardDescription>
           </CardFooter>
         </Card>
-        <div className="flex mt-6 justify-between items-center">
-          <p className="pl-2 text-xl font-semibold font-mono ">Weight Trend</p>
-          <WeightSheet weight={user?.weight} />
-         
-        </div>
-
         <Card className="flex flex-col lg:max-w-md" x-chunk="charts-01-chunk-1">
           <CardHeader className="flex flex-row items-center gap-4 space-y-0 pb-2 [&>div]:flex-1">
             <div>
-              <CardDescription>Current</CardDescription>
+              <CardDescription>Resting HR</CardDescription>
               <CardTitle className="flex items-baseline gap-1 text-4xl tabular-nums">
-                {user?.weight}
+                62
                 <span className="text-sm font-normal tracking-normal text-muted-foreground">
-                  kg
+                  bpm
                 </span>
               </CardTitle>
             </div>
             <div>
-              <CardDescription>Goal</CardDescription>
+              <CardDescription>Variability</CardDescription>
               <CardTitle className="flex items-baseline gap-1 text-4xl tabular-nums">
-                66
+                35
                 <span className="text-sm font-normal tracking-normal text-muted-foreground">
-                  kg
+                  ms
                 </span>
               </CardTitle>
             </div>
@@ -316,18 +301,131 @@ function Charts() {
         </Card>
       </div>
       <div className="grid w-full flex-1 gap-6 lg:max-w-[20rem]">
+        <Card className="md:max-w-xs" x-chunk="charts-01-chunk-2">
+          <CardHeader>
+            <CardTitle>Progress</CardTitle>
+            <CardDescription>
+              You're average more steps a day this year than last year.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            <div className="grid auto-rows-min gap-2">
+              <div className="flex items-baseline gap-1 text-2xl font-bold tabular-nums leading-none">
+                12,453
+                <span className="text-sm font-normal text-muted-foreground">
+                  steps/day
+                </span>
+              </div>
+              <ChartContainer
+                config={{
+                  steps: {
+                    label: "Steps",
+                    color: "hsl(var(--chart-1))",
+                  },
+                }}
+                className="aspect-auto h-[32px] w-full"
+              >
+                <BarChart
+                  accessibilityLayer
+                  layout="vertical"
+                  margin={{
+                    left: 0,
+                    top: 0,
+                    right: 0,
+                    bottom: 0,
+                  }}
+                  data={[
+                    {
+                      date: "2024",
+                      steps: 12435,
+                    },
+                  ]}
+                >
+                  <Bar
+                    dataKey="steps"
+                    fill="var(--color-steps)"
+                    radius={4}
+                    barSize={32}
+                  >
+                    <LabelList
+                      position="insideLeft"
+                      dataKey="date"
+                      offset={8}
+                      fontSize={12}
+                      fill="white"
+                    />
+                  </Bar>
+                  <YAxis dataKey="date" type="category" tickCount={1} hide />
+                  <XAxis dataKey="steps" type="number" hide />
+                </BarChart>
+              </ChartContainer>
+            </div>
+            <div className="grid auto-rows-min gap-2">
+              <div className="flex items-baseline gap-1 text-2xl font-bold tabular-nums leading-none">
+                10,103
+                <span className="text-sm font-normal text-muted-foreground">
+                  steps/day
+                </span>
+              </div>
+              <ChartContainer
+                config={{
+                  steps: {
+                    label: "Steps",
+                    color: "hsl(var(--muted))",
+                  },
+                }}
+                className="aspect-auto h-[32px] w-full"
+              >
+                <BarChart
+                  accessibilityLayer
+                  layout="vertical"
+                  margin={{
+                    left: 0,
+                    top: 0,
+                    right: 0,
+                    bottom: 0,
+                  }}
+                  data={[
+                    {
+                      date: "2023",
+                      steps: 10103,
+                    },
+                  ]}
+                >
+                  <Bar
+                    dataKey="steps"
+                    fill="var(--color-steps)"
+                    radius={4}
+                    barSize={32}
+                  >
+                    <LabelList
+                      position="insideLeft"
+                      dataKey="date"
+                      offset={8}
+                      fontSize={12}
+                      fill="hsl(var(--muted-foreground))"
+                    />
+                  </Bar>
+                  <YAxis dataKey="date" type="category" tickCount={1} hide />
+                  <XAxis dataKey="steps" type="number" hide />
+                </BarChart>
+              </ChartContainer>
+            </div>
+          </CardContent>
+        </Card>
         <Card className="md:max-w-xs" x-chunk="charts-01-chunk-3">
           <CardHeader className="p-4 pb-0">
-            <CardTitle className="font-mono">Workouts</CardTitle>
+            <CardTitle>Walking Distance</CardTitle>
             <CardDescription>
-              Over the last 7 days, you have worked out 4 days, Great!
+              Over the last 7 days, your distance walked and run was 12.5 miles
+              per day.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-row items-baseline gap-4 p-4 pt-0">
             <div className="flex items-baseline gap-1 text-3xl font-bold tabular-nums leading-none">
-              20
+              12.5
               <span className="text-sm font-normal text-muted-foreground">
-                exercise done
+                miles/day
               </span>
             </div>
             <ChartContainer
@@ -397,7 +495,7 @@ function Charts() {
             </ChartContainer>
           </CardContent>
         </Card>
-        {/* <Card className="md:max-w-xs" x-chunk="charts-01-chunk-4">
+        <Card className="md:max-w-xs" x-chunk="charts-01-chunk-4">
           <CardContent className="flex gap-4 p-4 pb-2">
             <ChartContainer
               config={{
@@ -501,9 +599,9 @@ function Charts() {
               </div>
             </div>
           </CardFooter>
-        </Card> */}
+        </Card>
       </div>
-      {/* <div className="grid w-full flex-1 gap-6">
+      <div className="grid w-full flex-1 gap-6">
         <Card className="md:max-w-xs" x-chunk="charts-01-chunk-5">
           <CardContent className="flex gap-4 p-4">
             <div className="grid items-center gap-2">
@@ -777,34 +875,7 @@ function Charts() {
             </ChartContainer>
           </CardContent>
         </Card>
-      </div> */}
+      </div>
     </div>
-  );
-}
-
-function WeightSheet({weight}: any) {
-  return (
-    <Sheet>
-      <SheetTrigger> <Button size="sm" variant="secondary">
-            <Plus size={18} />
-          </Button></SheetTrigger>
-      <SheetContent side="bottom">
-        <SheetHeader className="text-left mb-5">
-          <SheetTitle>Add Weight</SheetTitle>
-        </SheetHeader>
-
-        <div className="flex flex-col gap-4">
-          <div>
-            <ShadLabel htmlFor="password">Weight (kg)</ShadLabel>
-            <Input placeholder="Enter weight" value={weight} type="number" />
-          </div>
-          <div>
-            <ShadLabel htmlFor="password">Weight Goal (kg)</ShadLabel>
-            <Input placeholder="Enter goal" />
-          </div>
-          <Button >Submit</Button>
-        </div>
-      </SheetContent>
-    </Sheet>
   );
 }
