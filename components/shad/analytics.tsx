@@ -40,6 +40,16 @@ import {
 import { Input } from "../ui/input";
 import { Label as ShadLabel } from "../ui/label";
 import { useAuth } from "../../source/store/auth.store";
+import { getWeightHistory } from "../../source/api/user/get-weight-history";
+import { format } from "date-fns";
+import { usePut } from "../../source/api/common/use-put";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useState } from "react";
+import { useToast } from "../hooks/use-toast";
+import AppHeader from "./app-header";
+import { Cross2Icon } from "@radix-ui/react-icons";
 
 export default function AnalyticsRoute({
   navigate,
@@ -56,8 +66,46 @@ export default function AnalyticsRoute({
 }
 
 function Charts() {
+  const hydrate = useAuth.use.hydrate();
   const user = useAuth.use.user();
+  const setUser = useAuth.use.setUser();
+  const { toast } = useToast()
+  const [open, setopen] = useState(false);
+  const { data: weightHistory, refetch: refetchWeight } = getWeightHistory({
+    variables: { id: user?.id },
+    select: (data) => {
+      const weightHistory: any[] = data?.data;
+      return weightHistory.map(w => {
+        return {
+          weight: w.weight,
+          date: w.createdAt
+        }
+      })
+    },
+  });
+  const { mutate: updateWeight } = usePut({
+    onSuccess: (response: any) => {
+      if (user) {
+        setUser({ ...user, weight: response.data.data.weight });
+        refetchWeight();
+        hydrate(true)
+        setopen(false)
+        toast({description: 'Weight saved successfully', variant: 'success'});
+
+      }
+    },
+  });
+
+  const addWeight = (data: any) => {
+    updateWeight({ endpoint: `/member/weight/${user?.id}`, payload: {...data, previousWeight: user?.weight} });
+  };
+
+  console.log(weightHistory, "check me");
+  
+
+
   return (
+    <>
     <div className="chart-wrapper mx-auto flex max-w-6xl flex-col flex-wrap items-start justify-center gap-6 p-6 sm:flex-row sm:p-8">
       <div className="grid w-full gap-2 sm:grid-cols-2 lg:max-w-[22rem] lg:grid-cols-1 xl:max-w-[25rem]">
         <p className="pl-2 text-xl font-semibold font-mono">
@@ -91,36 +139,36 @@ function Charts() {
                 data={[
                   {
                     date: "2024-01-01",
-                    steps: 2000,
+                    calorie: 2000,
                   },
                   {
                     date: "2024-01-02",
-                    steps: 2100,
+                    calorie: 2100,
                   },
                   {
                     date: "2024-01-03",
-                    steps: 2200,
+                    calorie: 2200,
                   },
                   {
                     date: "2024-01-04",
-                    steps: 1300,
+                    calorie: 1300,
                   },
                   {
                     date: "2024-01-05",
-                    steps: 1400,
+                    calorie: 1400,
                   },
                   {
                     date: "2024-01-06",
-                    steps: 2500,
+                    calorie: 2500,
                   },
                   {
                     date: "2024-01-07",
-                    steps: 1600,
+                    calorie: 1600,
                   },
                 ]}
               >
                 <Bar
-                  dataKey="steps"
+                  dataKey="calorie"
                   fill="var(--color-steps)"
                   radius={5}
                   fillOpacity={0.6}
@@ -191,7 +239,7 @@ function Charts() {
         </Card>
         <div className="flex mt-6 justify-between items-center">
           <p className="pl-2 text-xl font-semibold font-mono ">Weight Trend</p>
-          <WeightSheet weight={user?.weight} />
+          <WeightSheet setopen={setopen} open={open} weight={user?.weight} addWeight={(data:any) => addWeight(data)} weightGoal={user?.weightGoal}  />
          
         </div>
 
@@ -209,7 +257,7 @@ function Charts() {
             <div>
               <CardDescription>Goal</CardDescription>
               <CardTitle className="flex items-baseline gap-1 text-4xl tabular-nums">
-                66
+                {user?.weightGoal}
                 <span className="text-sm font-normal tracking-normal text-muted-foreground">
                   kg
                 </span>
@@ -219,8 +267,8 @@ function Charts() {
           <CardContent className="flex flex-1 items-center">
             <ChartContainer
               config={{
-                resting: {
-                  label: "Resting",
+                weight: {
+                  label: "Weight",
                   color: "hsl(var(--chart-1))",
                 },
               }}
@@ -233,36 +281,7 @@ function Charts() {
                   right: 14,
                   top: 10,
                 }}
-                data={[
-                  {
-                    date: "2024-01-01",
-                    resting: 62,
-                  },
-                  {
-                    date: "2024-01-02",
-                    resting: 72,
-                  },
-                  {
-                    date: "2024-01-03",
-                    resting: 35,
-                  },
-                  {
-                    date: "2024-01-04",
-                    resting: 62,
-                  },
-                  {
-                    date: "2024-01-05",
-                    resting: 52,
-                  },
-                  {
-                    date: "2024-01-06",
-                    resting: 62,
-                  },
-                  {
-                    date: "2024-01-07",
-                    resting: 70,
-                  },
-                ]}
+                data={weightHistory}
               >
                 <CartesianGrid
                   strokeDasharray="4 4"
@@ -277,21 +296,19 @@ function Charts() {
                   axisLine={false}
                   tickMargin={8}
                   tickFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("en-US", {
-                      weekday: "short",
-                    });
+                    return format(value, "MMM dd")
                   }}
                 />
                 <Line
-                  dataKey="resting"
+                  dataKey="weight"
                   type="natural"
-                  fill="var(--color-resting)"
-                  stroke="var(--color-resting)"
+                  fill="var(--color-weight)"
+                  stroke="var(--color-weight)"
                   strokeWidth={2}
                   dot={false}
                   activeDot={{
-                    fill: "var(--color-resting)",
-                    stroke: "var(--color-resting)",
+                    fill: "var(--color-weight)",
+                    stroke: "var(--color-weight)",
                     r: 4,
                   }}
                 />
@@ -300,11 +317,7 @@ function Charts() {
                     <ChartTooltipContent
                       indicator="line"
                       labelFormatter={(value) => {
-                        return new Date(value).toLocaleDateString("en-US", {
-                          day: "numeric",
-                          month: "long",
-                          year: "numeric",
-                        });
+                        return format(value, "MMM dd - h:m")
                       }}
                     />
                   }
@@ -779,30 +792,47 @@ function Charts() {
         </Card>
       </div> */}
     </div>
+    </>
   );
 }
 
-function WeightSheet({weight}: any) {
+const zSchema = z.object({
+  weight: z.string(),
+  weightGoal: z.string().optional(),
+});
+
+
+function WeightSheet({weight, addWeight, weightGoal, open, setopen}: any) {
+  const {
+    formState: { errors },
+    register,
+    handleSubmit
+  } = useForm({
+    defaultValues: {weight, weightGoal},
+    resolver: zodResolver(zSchema),
+  });
+  
   return (
-    <Sheet>
-      <SheetTrigger> <Button size="sm" variant="secondary">
+    <Sheet open={open}>
+      <SheetTrigger> <Button onClick={() => setopen(true)} size="sm" variant="secondary">
             <Plus size={18} />
           </Button></SheetTrigger>
-      <SheetContent side="bottom">
-        <SheetHeader className="text-left mb-5">
+      <SheetContent side="bottom" hideClose>
+        <SheetHeader className="text-left mb-5 flex flex-row items-center justify-between">
           <SheetTitle>Add Weight</SheetTitle>
+        <Cross2Icon onClick={() => setopen(false)} className="h-4 w-4" />
         </SheetHeader>
 
         <div className="flex flex-col gap-4">
           <div>
             <ShadLabel htmlFor="password">Weight (kg)</ShadLabel>
-            <Input placeholder="Enter weight" value={weight} type="number" />
+            <Input placeholder="Enter weight" type="number" {...register('weight')} />
           </div>
           <div>
             <ShadLabel htmlFor="password">Weight Goal (kg)</ShadLabel>
-            <Input placeholder="Enter goal" />
+            <Input placeholder="Enter goal" type="number" {...register('weightGoal')} />
           </div>
-          <Button >Submit</Button>
+          <Button onClick={handleSubmit(addWeight)} >Submit</Button>
         </div>
       </SheetContent>
     </Sheet>

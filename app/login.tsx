@@ -24,12 +24,13 @@ const loginSchema = z.object({
 
 export default function Login() {
   const signIn = useAuth.use.signIn();
+  const setUser = useAuth.use.setUser();
   const { mutate: login, isPending: loginLoading } = useLogin({
     onSuccess: (response) => {
-      signIn(response.data.data.token, {
+      signIn(response.data.data.token);
+      setUser({
         ...response.data.data.member,
-        enableAI: response.data.data.enableAI,
-      });
+      })
       router.push("/");
     },
     onError: (err: any) => {

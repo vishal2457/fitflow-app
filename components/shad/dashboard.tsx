@@ -7,21 +7,19 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
-  CardTitle,
+  CardTitle
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { CheckCheck } from "lucide-react-native";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ActivityIndicator } from "react-native";
-import { Bar, BarChart, Label, LabelList, PolarAngleAxis, PolarGrid, PolarRadiusAxis, RadialBar, RadialBarChart, XAxis, YAxis } from "recharts";
+import { Label, PolarAngleAxis, PolarRadiusAxis, RadialBar, RadialBarChart } from "recharts";
+import { useDelete } from "../../source/api/common/use-delete";
 import { getTodaysWorkout } from "../../source/api/workout/get-todays-workout";
+import { addWorkoutLog } from "../../source/api/workout/log-workout";
 import { getRandomQuote } from "../../source/utils/random-quotes";
 import { Button } from "../ui/button";
-import { ChartConfig, ChartContainer } from "../ui/chart";
-import { addWorkoutLog } from "../../source/api/workout/log-workout";
-import { useDelete } from "../../source/api/common/use-delete";
+import { ChartContainer } from "../ui/chart";
 
 export default function DashboardRoute({ navigate }: Props) {
   const [quote] = useState(getRandomQuote());
@@ -92,6 +90,11 @@ export default function DashboardRoute({ navigate }: Props) {
     },
   });
 
+  const completedPercentage = useMemo(() => {
+    return  (data?.todaysWorkout?.completedExercise * 100) / data?.todaysWorkout?.totalWorkouts
+   }, [data?.todaysWorkout?.completedExercise , data?.todaysWorkout?.totalWorkouts])
+ 
+
   if (isPending) {
     return (
       <div className="h-screen flex flex-row items-center justify-center">
@@ -99,6 +102,7 @@ export default function DashboardRoute({ navigate }: Props) {
       </div>
     );
   }
+
 
 
   return (
@@ -113,7 +117,7 @@ export default function DashboardRoute({ navigate }: Props) {
               <div className="grid flex-1 auto-rows-min gap-0.5">
                 <div className="text-sm text-muted-foreground">Calories Burnt</div>
                 <div className="flex items-baseline gap-1 text-xl font-bold tabular-nums leading-none">
-                  562/600
+                {data?.todaysWorkout?.burntCalories}/{data?.todaysWorkout?.calorieBurn}
                   <span className="text-sm font-normal text-muted-foreground">
                     kcal
                   </span>
@@ -122,7 +126,7 @@ export default function DashboardRoute({ navigate }: Props) {
               <div className="grid flex-1 auto-rows-min gap-0.5">
                 <div className="text-sm text-muted-foreground">Exercise</div>
                 <div className="flex items-baseline gap-1 text-xl font-bold tabular-nums leading-none">
-                  73/120
+                {data?.todaysWorkout?.completedExercise}/{data?.todaysWorkout?.totalWorkouts}
                   <span className="text-sm font-normal text-muted-foreground">
                     min
                   </span>
@@ -153,7 +157,7 @@ export default function DashboardRoute({ navigate }: Props) {
                 
                   {
                     activity: "move",
-                    value: 95,
+                    value: completedPercentage,
                     fill: "var(--color-move)",
                   },
                 ]}
@@ -189,7 +193,7 @@ export default function DashboardRoute({ navigate }: Props) {
                           y={viewBox.cy}
                           className="fill-foreground text-4xl font-bold"
                         >
-                          65%
+                          {completedPercentage.toFixed(0)}%
                         </tspan>
                         <tspan
                           x={viewBox.cx}

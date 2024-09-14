@@ -5,6 +5,7 @@ import "react-native-reanimated";
 import "../global.css";
 import { APIProvider } from "../source/api";
 import { hydrateAuth } from "../source/store/auth.store";
+import { Toaster } from "../components/ui/toaster";
 
 
 
@@ -31,6 +32,7 @@ export default function RootLayout() {
           /> */}
           <Stack.Screen name="+not-found" />
         </Stack>
+        <Toaster />
       </APIProvider>
        
     </ThemeProvider>

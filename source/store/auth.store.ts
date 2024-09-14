@@ -2,25 +2,25 @@ import { create } from "zustand";
 import { Storage } from "../utils/storage/storage";
 import { createSelectors } from "../utils/create-selector";
 import { User } from "../types/user";
+import { client } from "../api";
 
 interface AuthState {
   token: string | null;
   status: "idle" | "signOut" | "signIn";
   user: User | null;
-  signIn: (data: string, user: User) => void;
+  signIn: (data: string) => void;
   setUser: (user: User) => void;
   signOut: () => void;
-  hydrate: () => void;
+  hydrate: (fresh?: boolean) => void;
 }
 
 const _useAuth = create<AuthState>((set, get) => ({
   status: "idle",
   token: null,
   user: null,
-  signIn: (token, user) => {
+  signIn: (token) => {
     Storage.set("token", token);
-    Storage.set("user", user);
-    set({ status: "signIn", token, user });
+    set({ status: "signIn", token });
   },
   signOut: () => {
     Storage.remove("token");
@@ -32,12 +32,20 @@ const _useAuth = create<AuthState>((set, get) => ({
     set({ ...get(), user });
   },
 
-  hydrate: async () => {
+  hydrate: async (fresh = false) => {
     try {
       const userToken = await Storage.get("token");
-      const user = await Storage.get("user");
-      if (userToken !== null && user !== null) {
-        get().signIn(userToken, user);
+
+      if (userToken !== null) {
+        if (fresh) {
+          const { data } = await client.get("/member/me");
+          get().setUser(data.data);
+        } else {
+          const user = await Storage.get("user");
+          get().setUser(user);
+        }
+
+        get().signIn(userToken);
       } else {
         get().signOut();
       }
@@ -51,6 +59,5 @@ const _useAuth = create<AuthState>((set, get) => ({
 export const useAuth = createSelectors(_useAuth);
 
 export const signOut = () => _useAuth.getState().signOut();
-export const signIn = (token: string, user: User) =>
-  _useAuth.getState().signIn(token, user);
+export const signIn = (token: string) => _useAuth.getState().signIn(token);
 export const hydrateAuth = () => _useAuth.getState().hydrate();
