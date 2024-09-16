@@ -11,7 +11,7 @@ interface AuthState {
   signIn: (data: string) => void;
   setUser: (user: User) => void;
   signOut: () => void;
-  hydrate: (fresh?: boolean) => void;
+  hydrate: () => void;
 }
 
 const _useAuth = create<AuthState>((set, get) => ({
@@ -32,19 +32,13 @@ const _useAuth = create<AuthState>((set, get) => ({
     set({ ...get(), user });
   },
 
-  hydrate: async (fresh = false) => {
+  hydrate: async () => {
     try {
       const userToken = await Storage.get("token");
 
       if (userToken !== null) {
-        if (fresh) {
-          const { data } = await client.get("/member/me");
-          get().setUser(data.data);
-        } else {
-          const user = await Storage.get("user");
-          get().setUser(user);
-        }
-
+        const { data } = await client.get("/member/me");
+        get().setUser(data.data);
         get().signIn(userToken);
       } else {
         get().signOut();

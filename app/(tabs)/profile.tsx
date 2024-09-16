@@ -1,4 +1,5 @@
-import { LogOut, Notebook, User } from "lucide-react-native";
+import { format } from "date-fns";
+import AppHeader from "../../components/shad/app-header";
 import ShadLayout from "../../components/shad/shad-layout";
 import {
   Avatar,
@@ -14,23 +15,26 @@ import {
   CardHeader,
   CardTitle,
 } from "../../components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../../components/ui/dropdown-menu";
 import { Label } from "../../components/ui/label";
 import { BASE_API_URL } from "../../source/api";
 import { getMembershipDetail } from "../../source/api/user/get-user-membership";
-import { signOut, useAuth } from "../../source/store/auth.store";
-import { format } from "date-fns";
-import AppHeader from "../../components/shad/app-header";
+import { useAuth } from "../../source/store/auth.store";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "../../components/ui/sheet";
+import { Cross2Icon } from "@radix-ui/react-icons";
+import { Input } from "../../components/ui/input";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { Textarea } from "../../components/ui/textarea";
 
 export default function ProfileRoute() {
   const user = useAuth.use.user();
+  const [open, setopen] = useState(false);
 
   const { data: membershipDetail } = getMembershipDetail({
     variables: {
@@ -39,6 +43,16 @@ export default function ProfileRoute() {
     select: (data) => {
       return data.data;
     },
+  });
+
+  const {
+    formState: { errors },
+    register,
+    handleSubmit,
+  } = useForm({
+    defaultValues: {
+      email: user?.email
+    }
   });
 
   return (
@@ -107,7 +121,63 @@ export default function ProfileRoute() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button className="w-full">Edit</Button>
+            <Sheet>
+              <SheetTrigger className="w-full">
+                {" "}
+                <Button className="w-full" variant="secondary" >Edit</Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" hideClose>
+                <SheetHeader className="text-left mb-5 flex flex-row items-center justify-between">
+                  <SheetTitle>Edit Profile</SheetTitle>
+                  <Cross2Icon
+                    onClick={() => setopen(false)}
+                    className="h-4 w-4"
+                  />
+                </SheetHeader>
+
+                <div className="flex flex-col gap-4">
+                  <div>
+                    <Label >Email</Label>
+                    <Input
+                      placeholder="Enter email"
+                      type="email"
+                      {...register("email")}
+                    />
+                  </div>
+                  <div>
+                    <Label >Age</Label>
+                    <Input
+                      placeholder="Enter age"
+                      type="number"
+                      {...register("age")}
+                    />
+                  </div>
+                  <div>
+                    <Label >Height</Label>
+                    <Input
+                      placeholder="Enter height"
+                      type="number"
+                      {...register("height")}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="password">Mobile</Label>
+                    <Input
+                      placeholder="Enter mobile"
+                      {...register("mobile")}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="password">Address</Label>
+                    <Textarea
+                      placeholder="Enter address"
+                      {...register("address")}
+                    />
+                  </div>
+                  <Button onClick={handleSubmit(() => {})}>Submit</Button>
+                </div>
+              </SheetContent>
+            </Sheet>
           </CardFooter>
         </Card>
       </div>

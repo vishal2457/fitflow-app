@@ -99,8 +99,6 @@ function Charts() {
   const addWeight = (data: any) => {
     updateWeight({ endpoint: `/member/weight/${user?.id}`, payload: {...data, previousWeight: user?.weight} });
   };
-
-  console.log(weightHistory, "check me");
   
 
 
