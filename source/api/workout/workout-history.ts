@@ -17,7 +17,7 @@ export const getWorkoutHistory = createQuery<Response, Variables, AxiosError>({
         params: {
           page: 1,
           limit: 200,
-          sort: JSON.stringify({ Desc: "id" }),
+          sort: JSON.stringify({ Desc: "createdAt" }),
           filters: JSON.stringify({}),
           fields: "",
         },

@@ -17,12 +17,13 @@ import { Label, PolarAngleAxis, PolarRadiusAxis, RadialBar, RadialBarChart } fro
 import { useDelete } from "../../source/api/common/use-delete";
 import { getTodaysWorkout } from "../../source/api/workout/get-todays-workout";
 import { addWorkoutLog } from "../../source/api/workout/log-workout";
-import { getRandomQuote } from "../../source/utils/random-quotes";
+import { getRandomQuote, getRandomRestDayMessage } from "../../source/utils/random-quotes";
 import { Button } from "../ui/button";
 import { ChartContainer } from "../ui/chart";
 
 export default function DashboardRoute({ navigate }: Props) {
   const [quote] = useState(getRandomQuote());
+  const [restDayMessage] = useState(getRandomRestDayMessage());
 
   const {
     data,
@@ -91,6 +92,9 @@ export default function DashboardRoute({ navigate }: Props) {
   });
 
   const completedPercentage = useMemo(() => {
+    if(!data?.todaysWorkout?.totalWorkouts) {
+      return 0
+    }
     return  (data?.todaysWorkout?.completedExercise * 100) / data?.todaysWorkout?.totalWorkouts
    }, [data?.todaysWorkout?.completedExercise , data?.todaysWorkout?.totalWorkouts])
  
@@ -111,7 +115,18 @@ export default function DashboardRoute({ navigate }: Props) {
         <p className="pl-3 text-lg  font-semibold font-mono">Hello, vishal</p>
         <p className="pl-3 pt-1 text-muted-foreground text-xs font-mono">{quote}</p>
         <div className="my-4 mt-6">
-        <Card className="md:max-w-xs" x-chunk="charts-01-chunk-5">
+          {true ?  <Card className="md:max-w-xs my-4" x-chunk="charts-01-chunk-4">
+          <CardHeader className="p-4">
+            <CardTitle>Gym anniversery</CardTitle>
+            <CardDescription className="text-xs">
+               Sunday 11:30 am at gym.
+            </CardDescription>
+            <CardContent className="p-0">
+            <img className="rounded-lg border-2 border-primary" src="https://fastly.picsum.photos/id/13/2500/1667.jpg?hmac=SoX9UoHhN8HyklRA4A3vcCWJMVtiBXUg0W4ljWTor7s" />
+            </CardContent>
+          </CardHeader>
+        </Card> : null }
+       {data?.todaysWorkout?.totalWorkouts ? <Card className="md:max-w-xs" x-chunk="charts-01-chunk-5">
           <CardContent className="flex gap-4 p-4">
             <div className="grid items-center gap-2">
               <div className="grid flex-1 auto-rows-min gap-0.5">
@@ -211,9 +226,11 @@ export default function DashboardRoute({ navigate }: Props) {
               </RadialBarChart>
             </ChartContainer>
           </CardContent>
-        </Card>
+        </Card> : null }
+        
         </div>
-        <Card className="md:max-w-xs" x-chunk="charts-01-chunk-4">
+      
+      {data?.todaysWorkout?.totalMinutes ?     <Card className="md:max-w-xs" x-chunk="charts-01-chunk-4">
           <CardHeader className="p-4">
             <CardTitle>Time to complete</CardTitle>
             <CardDescription className="text-xs">
@@ -229,9 +246,16 @@ export default function DashboardRoute({ navigate }: Props) {
             
             </CardContent>
           </CardHeader>
-        </Card>
+        </Card> : null }
+    
         <div className="pt-8">
           <p className="pl-3 text-xl font-semibold font-mono">Today's Workout</p>
+          {!data?.todaysWorkout?.workoutDetail?.length ? <Card className="my-4">
+            <CardHeader>
+              <CardTitle>Rest Day</CardTitle>
+              <CardDescription>{restDayMessage}</CardDescription>
+            </CardHeader>
+          </Card> : null}
           <p className="pl-3 text-muted-foreground font-semibold font-mono text-sm">
             {data?.todaysWorkout?.dayName}
           </p>

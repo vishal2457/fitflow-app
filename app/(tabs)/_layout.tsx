@@ -23,9 +23,9 @@ export default function TabLayout() {
     return <Redirect href="/login" />;
   }
 
-  // if (!user?.age || !user?.weight || !user?.height) {
-  //   return <Redirect href="/profile-info" />;
-  // }
+  if (!user?.age || !user?.weight || !user?.height) {
+    return <Redirect href="/member-info" />;
+  }
   return (
     <Tabs
       screenOptions={{

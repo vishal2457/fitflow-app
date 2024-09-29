@@ -10,24 +10,7 @@ export default function IndexRoute() {
   return <Dashboard  ref={useScrollRef()} {...extraProps} />;
 }
 
-// native notify function
-async function notify() {
-  if (process.env.EXPO_OS === "web") {
-    alert("New Order (from a DOM component 🚀)");
-    return;
-  }
 
-  await Notifications.requestPermissionsAsync();
-
-  await Notifications.scheduleNotificationAsync({
-    identifier: "hello",
-    content: {
-      title: "New Order",
-      body: "(from a DOM component 🚀)",
-    },
-    trigger: null,
-  });
-}
 
 const extraProps = {
   navigate: router.navigate,

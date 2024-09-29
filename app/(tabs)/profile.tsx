@@ -18,7 +18,7 @@ import {
 import { Label } from "../../components/ui/label";
 import { BASE_API_URL } from "../../source/api";
 import { getMembershipDetail } from "../../source/api/user/get-user-membership";
-import { useAuth } from "../../source/store/auth.store";
+import { hydrateAuth, useAuth } from "../../source/store/auth.store";
 import {
   Sheet,
   SheetContent,
@@ -28,9 +28,10 @@ import {
 } from "../../components/ui/sheet";
 import { Cross2Icon } from "@radix-ui/react-icons";
 import { Input } from "../../components/ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Textarea } from "../../components/ui/textarea";
+import { updateUser } from "../../source/api/user/update-user";
 
 export default function ProfileRoute() {
   const user = useAuth.use.user();
@@ -45,15 +46,32 @@ export default function ProfileRoute() {
     },
   });
 
+
   const {
     formState: { errors },
     register,
     handleSubmit,
   } = useForm({
     defaultValues: {
-      email: user?.email
-    }
+     email: user?.email,
+     age: user?.age,
+     height: user?.height,
+     mobile: user?.mobile,
+     address: user?.address
+    },
   });
+  
+
+  const {mutate: updateUserFunc} = updateUser({
+    onSuccess: (response) => {
+      hydrateAuth();
+      setopen(false)
+    },
+  });
+
+  const submitProfile = (data:any) => {    
+    updateUserFunc({...user, ...data});
+};
 
   return (
     <ShadLayout>
@@ -66,7 +84,6 @@ export default function ProfileRoute() {
               {user?.name.substring(0, 2)}
             </AvatarFallback>
           </Avatar>
-
           <Card className="w-full max-w-sm my-3 mt-24 pt-10 text-center ">
             <CardHeader>
               <CardTitle className="text-2xl font-mono">{user?.name}</CardTitle>
@@ -121,10 +138,10 @@ export default function ProfileRoute() {
             </div>
           </CardContent>
           <CardFooter>
-            <Sheet>
+            <Sheet open={open}>
               <SheetTrigger className="w-full">
                 {" "}
-                <Button className="w-full" variant="secondary" >Edit</Button>
+                <Button className="w-full" variant="secondary" onClick={() => setopen(true)} >Edit</Button>
               </SheetTrigger>
               <SheetContent side="bottom" hideClose>
                 <SheetHeader className="text-left mb-5 flex flex-row items-center justify-between">
@@ -174,7 +191,7 @@ export default function ProfileRoute() {
                       {...register("address")}
                     />
                   </div>
-                  <Button onClick={handleSubmit(() => {})}>Submit</Button>
+                  <Button onClick={handleSubmit(submitProfile)}>Submit</Button>
                 </div>
               </SheetContent>
             </Sheet>

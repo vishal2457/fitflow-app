@@ -1,13 +1,18 @@
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
+import { Label } from "./label"
 
 export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {}
+  extends React.InputHTMLAttributes<HTMLInputElement> {label?: string, labelClass?:string }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, ...props }, ref) => {
+  ({ className,label, labelClass, type, ...props }, ref) => {
+    
     return (
+      <div className="grid gap-2">
+      {label ?  <Label htmlFor={props.id} className={cn('ml-1', labelClass)}>{label}</Label> : null }
+     
       <input
         type={type}
         className={cn(
@@ -17,6 +22,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         ref={ref}
         {...props}
       />
+      </div>
     )
   }
 )
